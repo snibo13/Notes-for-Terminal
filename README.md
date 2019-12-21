@@ -20,7 +20,7 @@ Add Note-for-Terminal directory to System PATH
 Additional Information: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
 
 
-## Usage:
+## Usage
 
   Adding notes:
   ```sh

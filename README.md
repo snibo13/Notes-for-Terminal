@@ -3,6 +3,7 @@
 Command prompt/powershell functionality is a work in progress.
 A Simple Notes App for Terminal or Command Prompt.
 
+### For the time being, notes is only accesible within the directory it is installed. I am working on a solution but if you have a multi-tab terminal, having notes open in one and code in another is recommended.
 
 ## Instalation
 
@@ -15,9 +16,6 @@ clang notes.c -o notes
 #For Linux
 chmod a+x notes
 ```
-Optional
-Add Note-for-Terminal directory to System PATH
-Additional Information: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
 
 
 ## Usage

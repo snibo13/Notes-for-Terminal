@@ -9,32 +9,46 @@ int getNotes();
 int writeNote(char* note);
 int deleteNote(int line);
 
+void markDone(int line);
+void clearNotes();
+
+struct note {
+	int line;
+	bool done;
+	char* text
+}
+
+
 int main(int argc, char** argv) {
+	//Loop to present the notes
   if (argc != 2 && argc != 3) {
     printf("Improper usage\n Run 'notes -help' for more information");
     return 1;
   }
 
-  char flag = '-';
+  //Checking for flags
+	char flag = '-';
   char* parameter = argv[1];
   if(parameter[0] == flag) {
     if(strncmp(parameter,"-help",5) == 0) {
         printHelp();
-	return 0;
-   }
-   if(strncmp(parameter,"-get",4) == 0) {
+		   	return 0;
+   } else if(strncmp(parameter,"-get",4) == 0) {
      return getNotes();
-   }
-   if(strncmp(parameter,"-del",2) == 0) {
+   } else if(strncmp(parameter,"-del",2) == 0) {
      if(argc != 3) {
        printf("Improper usage\n Run 'notes -help' for more information");
        return 1;
      }
      int line = atoi(argv[2]);
      return deleteNote(line);
-   }
+   } else if(strncmp(parameter, "-clear", 6 ) == 0) {
+		 clearNotes();
+		 return 1;
+	 } else {
    printf("Command not found");
    return 2;
+	 }
   }
   int r = writeNote(parameter); 
   return r;
@@ -45,13 +59,13 @@ void printHelp() {
   printf("use it for to-do lists and quick notes\n");
   printf("To view the help screen run: \"notes -help\"\n");
   printf("To view all notes run: \"notes -get\"\n");
-  printf("To add a note run: \"notes \"[note]\"\n ");
+  printf("To add a note run: \"notes \"[note]\"\n");
   printf("To delete a note run: \"notes -del [line number]\"\n");
 }
 
 int getNotes() {
   FILE *fp;
-  fp = fopen("notes.txt","r+");
+  fp = fopen("./notes.txt","r+");
   if (fp == NULL) {
     printf("Error reading file");
     return 3;
@@ -75,8 +89,8 @@ int getNotes() {
 int deleteNote(int line) {
   FILE *fp;
   FILE *temp;
-  temp = fopen("temp.txt","w+");
-  fp = fopen("notes.txt","r+");
+  temp = fopen("./temp.txt","w+");
+  fp = fopen("./notes.txt","r+");
   if (fp == NULL) {
     printf("Error reading file");
     return 3;
@@ -111,7 +125,19 @@ int writeNote(char* note) {
     printf("Error opening file");
     return 4;
   }
-  fprintf(fp, "%s\n", note);
+  fprintf(fp, "%s", note);
   fclose(fp);
   return 0;
+}
+
+void clearNotes() {
+	FILE* fp;
+	fp = fopen("notes.txt", "w");
+	if (fp == NULL) {
+		printf("Error opening file");
+		return;
+	}
+	fprintf(fp, "");
+	fclose(fp);
+	return;
 }

@@ -1,5 +1,1 @@
-
-<<<<<<< HEAD
-Test
-=======
->>>>>>> 4e6d70927460f3ea9b12b4ef3f166bb01094e03b
+N|Hello|N|World|N|Hello|

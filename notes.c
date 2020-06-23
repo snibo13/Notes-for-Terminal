@@ -79,9 +79,10 @@ void printHelp() {
 
 int getNotes()
 {
-  notes = malloc(sizeof(struct Note));
-
-  parseText();
+  int lines = parseText();
+  for (int i = 1; i < lines; i++) {
+    // noteToString(notes[i]);
+  }
 
   return 0;
 }
@@ -109,7 +110,7 @@ int writeNotes() {
 
 void noteToString(struct Note note) {
   char done = (note.done) ? 'D' : 'N';
-  printf("%d\t%c\t%s", note.line, (char) done, note.text);
+  printf("%d\t%c\t%s\n", note.line, (char) done, note.text);
 }
 
 bool nullFile(FILE* fp) {
@@ -135,7 +136,7 @@ int parseText() {
     
     struct Note n;
    
-    char *note = malloc(sizeof(char) * 40); //40 Character note text limit
+    char* note = (char *) malloc(sizeof(char) * 40); //40 Character note text limit
     int c;
     int delinCount = 0;
     int line = 1;
@@ -150,93 +151,23 @@ int parseText() {
       }
         if (delinCount % 2 == 1) { //Delineator between completion and note
           int i = 0;
+          free(note);
+          note = (char*) malloc(sizeof(char) * 40);
           while ((c = fgetc(fp)) != EOF && c != '|') {
             note[i++] = (char) c;
           }
-          note[i] = '\0';
           n.text = note;
           ungetc('|', fp); // Replace the | in the 
           n.line = line++;
-          printf("REALLOC SIZE: %d\n", (int) sizeof(n) * line);
 
+          noteToString(n);
           
-        
+          n = (struct Note) {0};
         }
     }
-
-
-    
-
     fclose(fp);
+    return line;
 
-
-
- 
- 
- 
-  // printf("File open");
-  // char ch;
-  // notes = (struct Note*) malloc(sizeof(struct Note));
-  // struct Note n;
-  // int delinCount = 0; //Number of |s
-  // printf("Looping");
-  // char* string;
-  // string = (char* )malloc(10000);
-  // int i = 0;
-  // while(ch = fgetc(fp) != EOF) {
-  //   string[i++] = (char) ch;
-  // }
-  // string[i] = '\0';
-  // printf("%s", string);
-
-//   do {
-//     ch = fgetc(fp);
-//     if (ch == EOF) {
-//       break;
-//     }
-//     if (ch == '|') {
-//       delinCount++;
-// //      continue;
-//     }
-//     if (delinCount%2 == 1) { //Second delineator before note
-//       char ch1;
-//       do {
-//         ch1 = fgetc(fp);
-//         printf("%s", n.text);
-//         printf("%d", (int) sizeof(n.text));
-//         // n.text = appendChar(n.text, ch1);
-//         // strcat(n.text, ch1); //Add all characters until next delineator to note text
-//       } while (ch1 != '|' && ch1 != EOF);
-//       ungetc('|', fp); //Iterate back from the delineator to maintain count
-//       int count = sizeof(notes) / sizeof(struct Note);
-//       n.line = ++count;
-//       realloc(notes, sizeof(struct Note) * (sizeof(notes) / sizeof(notes) + 2));
-//       notes[count+2] = n; //Add note to notes Account for 0 index and line count diferenece
-//       n.text = "\0"; //reset note
-//       noteToString(n);
-//     } else { //First delineator
-//       if (ch == 'D') {
-//         n.done = true;
-//       }
-//       else {
-//         n.done = false;
-//       }
-//     }
-
-//   } while (ch != EOF);
-
-}
-
-char* appendChar(char* string, char c) {
-  printf("%c", c);
-  printf("%s", string);
-  int i = sizeof(string);
-  printf("%d", i);
-  i++;
-  string = (char*) realloc(string, sizeof(char) * i);
-  string[i] = c;
-  printf("%c", string[i]);
-  return string;
 }
 
 int writeNote(char* note) {

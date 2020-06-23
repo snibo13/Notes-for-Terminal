@@ -2,22 +2,27 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
+typedef struct Note {
+	int line;
+	bool done;
+	char* text;
+};
 
 void printHelp();
 int getNotes();
 int writeNote(char* note);
 int deleteNote(int line);
-
+int writeNotes();
 void markDone(int line);
 void clearNotes();
+bool nullFile(FILE* fp);
+char* noteToString(struct Note note);
 
-struct note {
-	int line;
-	bool done;
-	char* text
-}
 
+
+struct Note* notes;
 
 int main(int argc, char** argv) {
 	//Loop to present the notes
@@ -87,45 +92,121 @@ int getNotes() {
 }
 
 int deleteNote(int line) {
-  FILE *fp;
-  FILE *temp;
-  temp = fopen("./temp.txt","w+");
+  FILE* fp;
   fp = fopen("./notes.txt","r+");
-  if (fp == NULL) {
-    printf("Error reading file");
-    return 3;
+  if (nullFile(fp)) return -1;
+  notes[line-1] = (struct Note) { 0 };
+  return writeNotes();
+
+}
+
+
+int writeNotes() {
+  FILE* fp;
+  fp = fopen("./note.txt", "w+");
+  if (nullFile(fp)) return -1;
+  int noteCount = sizeof(notes)/sizeof( struct Note);
+  for (int i = 0; i < noteCount; i++) {
+    if ( memcmp(notes[i], (struct Note) { 0 }, sizeof(struct Note))) continue; //== for structs is memcmp
+    fprintf(fp, "%s", noteToString(notes[i]));
   }
+  return 0;
+}
+
+char* noteToString(struct Note note) {
+  char* s;
+  char done = (note.done) ? 'D' : 'N';
+  sprintf(s, "%s|%s|%s", note.line, done, note.text);
+}
+//Deprecated
+// int deleteNote(int line) {
+//   FILE *fp;
+//   FILE *temp;
+//   temp = fopen("./temp.txt","w+");
+//   fp = fopen("./notes.txt","r+");
+//   if (nullFile(temp)) return;
+//   if (nullFile(fp)) return;
+//   char ch;
+//   char* newFile;
+//   int lineCount = 1;
+//   do {
+//     //Read the character to the ch variable
+//     ch = fgetc(fp);
+//     if(!isalpha(ch) && strncmp(&ch,"\n",1) != 0) {
+//        continue;
+//     }
+//     if (lineCount != line) {
+//       fprintf(temp, "%c", ch);
+//     }
+//     if(ch == '\n') {
+//       lineCount++;
+//     }
+//   } while (ch != EOF);
+//   fclose(fp);
+
+//   rename("temp.txt","notes.txt");
+
+//   return 0;  
+// }
+
+bool nullFile(FILE* fp) {
+  if (fp == NULL) {
+    printf("Error opening file");
+    return true;
+  }
+  return false;
+}
+
+void parseText() {
+  FILE* fp;
+  fp = fopen("notes.txt","r");
+  if (nullFile(fp)) return;
+
   char ch;
-  char* newFile;
-  int lineCount = 1;
+  struct Note n;
+  int delinCount = 0;
   do {
-    //Read the character to the ch variable
     ch = fgetc(fp);
-    if(!isalpha(ch) && strncmp(&ch,"\n",1) != 0) {
-       continue;
+    if (ch == '|') {
+      delinCount++;
+      continue;
     }
-    if (lineCount != line) {
-      fprintf(temp, "%c", ch);
+    if (delinCount%2 == 0) { //Second delineator before note
+      char ch1;
+      do {
+        ch1 = fgetc(fp);
+        strcat(n.text, ch1); //Add all characters until next delineator to note
+      } while (ch1 != '|' && ch1 != EOF);
+      ungetc('|', fp); //Iterate back from the delineator to maintain count
+      int count = sizeof(notes) / sizeof(struct Note);
+      n.line = ++count;
+      notes[count+2] = n; //Add note to notes Account for 0 index and line count diferenece
+      n = (struct Note) { 0 }; //reset note
+
+    } else {
+      if (ch == 'D') {
+        n.done = true;
+      }
+      else {
+        n.done = false;
+      }
     }
-    if(ch == '\n') {
-      lineCount++;
-    }
+
   } while (ch != EOF);
-  fclose(fp);
 
-  rename("temp.txt","notes.txt");
-
-  return 0;  
 }
 
 int writeNote(char* note) {
+  /*
+  Text structure "|" delineator
+  [Number] 
+  [D]one/[N]ot done
+  [Note]
+  */
   FILE* fp;
   fp = fopen("notes.txt","a+");
-  if(fp == NULL) {
-    printf("Error opening file");
-    return 4;
-  }
-  fprintf(fp, "%s", note);
+  if (nullFile(fp)) return -1;
+  fprintf(fp, "%s|%s|", 'N', note);
   fclose(fp);
   return 0;
 }
